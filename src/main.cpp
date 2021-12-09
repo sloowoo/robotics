@@ -1,4 +1,5 @@
 #include "vex.h"
+#include "robot-config.cpp"
 #include "string.h"
 #include <iostream>
 #include <vector>
@@ -6,24 +7,10 @@
 
 using namespace vex;
 
-//motors
-motor frontLeftMotor = motor(PORT20, ratio18_1, true);
-motor frontRightMotor = motor(PORT14, ratio18_1, false);
-motor backLeftMotor = motor(PORT9, ratio18_1, true);
-motor backRightMotor = motor(PORT1, ratio18_1, false);
-
-
-//motor groups
-motor_group leftDrive = motor_group(frontLeftMotor, backLeftMotor);
-motor_group rightDrive = motor_group(frontRightMotor,backRightMotor);
-
-
-//drivetrain
-drivetrain Drivetrain = drivetrain(leftDrive, rightDrive, 320, 320, 130, mm, 1);
-
 
 //controller
 controller Controller = controller();
+
 
 
 //global variables
@@ -52,6 +39,8 @@ int runLocCheck = 0;
 //vectors
 std::vector<double> leftSide;
 std::vector<double> rightSide;
+std::vector<double> claw;
+std::vector<double> arm;
 
 
 // Define Function
@@ -170,6 +159,13 @@ void recordSystem() {
   while (true) {
     speed = Controller.Axis3.position();
     turn = Controller.Axis1.position();
+    double armPos = Controller.Axis2.position();
+    double clawOpen = Controller.ButtonR1.pressing();
+    double clawClose = Controller.ButtonR2.pressing();
+    clawClose = clawClose * -1;
+    double clawFull = clawClose + clawOpen;
+
+
 
     if (deadZoneCheck == true) {
       
@@ -193,18 +189,28 @@ void recordSystem() {
 
     }
 
-
+    //im gay
+    
     speed = speedFactor * speed;
     turn = turnFactor * turn;
+
+  
 
     left = speed + turn;
     right = speed - turn;
 
     leftSide.push_back(left);
     rightSide.push_back(right);
+    claw.push_back(clawFull);
+    arm.push_back(armPos);
 
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
+    ClawMotor.spin(directionType::rev, clawFull, velocityUnits::pct);
+    ArmMotor1.spin(directionType::rev, armPos, velocityUnits::pct);
+    ArmMotor2.spin(directionType::rev, armPos, velocityUnits::pct);
+    //run motors
+
     //basically saying that there is a recording that's created
     hasStarted = true;
 
@@ -270,9 +276,16 @@ void replaySystem() {
   while (true) {
     double & left = leftSide.at(runLoc);
     double & right = rightSide.at(runLoc);
+    double & armPos = arm.at(runLoc);
+    double & clawFull = claw.at(runLoc);
 
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
+    ClawMotor.spin(directionType::rev, clawFull, velocityUnits::pct);
+    ArmMotor1.spin(directionType::rev, armPos, velocityUnits::pct);
+    ArmMotor2.spin(directionType::rev, armPos, velocityUnits::pct);
+  
+    //run motors
 
     //adds 1 per time to the array/vector/whatever so that it can retreive the correct things from the list
     runLoc += 1;
@@ -334,6 +347,7 @@ void driverSystem() {
 
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
+    
 
     if (Controller.ButtonDown.pressing()) {
       //driveCancel = true;
