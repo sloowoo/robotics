@@ -12,15 +12,15 @@ motor frontLeftMotor = motor(PORT10, ratio18_1, true);
 motor frontRightMotor = motor(PORT1, ratio18_1, false);
 motor backLeftMotor = motor(PORT17, ratio18_1, true);
 motor backRightMotor = motor(PORT16, ratio18_1, false);
-motor ArmMotor1 = motor(PORT19, ratio18_1, true);   
-motor ArmMotor2 = motor(PORT8, ratio18_1, false);        // T/F not checked
+motor LiftMotor1 = motor(PORT19, ratio18_1, true);   
+motor LiftMotor2 = motor(PORT8, ratio18_1, false);        // T/F not checked
 motor ClawMotor = motor(PORT18, ratio18_1, false);       // T/F not checked
 
 
 //motor groups
 motor_group leftDrive = motor_group(frontLeftMotor, backLeftMotor);
 motor_group rightDrive = motor_group(frontRightMotor,backRightMotor);
-motor_group armMotors = motor_group(ArmMotor1, ArmMotor2);
+motor_group liftMotors = motor_group(LiftMotor1, LiftMotor2);
 
 
 //drivetrain
@@ -67,6 +67,21 @@ void driverSystem();
 void recordCheck();
 void checkReplay();
 
+void whenC1L1Pressed() {
+  LiftMotor1.spin(forward);
+  LiftMotor2.spin(forward);
+  waitUntil(!Controller.ButtonL1.pressing());
+  LiftMotor1.stop();
+  LiftMotor2.stop();
+}
+
+void whenC1L2Pressed() {
+  LiftMotor1.spin(reverse);
+  LiftMotor2.spin(reverse);
+  waitUntil(!Controller.ButtonL2.pressing());
+  LiftMotor1.stop();
+  LiftMotor2.stop();
+}
 
 // Main
 int main() {
@@ -79,6 +94,11 @@ int main() {
     Controller.Screen.clearScreen();
     Controller.Screen.setCursor(1, 1);
     Controller.Screen.print("Menu:");
+    Controller.Screen.setCursor(2, 1);
+    Controller.Screen.print("left:drive up:record");
+    Controller.Screen.setCursor(3, 1);
+    Controller.Screen.print("right:replay down:exit");
+
 
     if (Controller.ButtonUp.pressing()) {
       task::sleep(250);
@@ -241,8 +261,8 @@ void recordSystem() {
 void checkReplay() {
   //error test
   while (true) {
-    Controller.Screen.setCursor(3, 1);
-    Controller.Screen.print("tests");
+    // Controller.Screen.setCursor(3, 1);
+    // Controller.Screen.print("tests");
 
     if (replayFinished) {
       Controller.Screen.clearScreen();
@@ -260,6 +280,7 @@ void checkReplay() {
       Controller.Screen.print("Replaying Recording");
       vex::task::sleep(500);
       replaySystem();
+      return;
     }
 
     //if not, then tell the user there is nothing to replay
@@ -277,6 +298,7 @@ void checkReplay() {
 void replaySystem() {
   //if (stopLoop) {
   timer::event(replaySystem, 40);
+  
   //}
 
 
@@ -289,10 +311,10 @@ void replaySystem() {
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
     ClawMotor.spin(directionType::rev, clawFull, velocityUnits::pct);
-    ArmMotor1.spin(directionType::rev, armPos, velocityUnits::pct);
-    ArmMotor2.spin(directionType::rev, armPos, velocityUnits::pct);
+    LiftMotor1.spin(directionType::rev, armPos, velocityUnits::pct);
+    LiftMotor2.spin(directionType::rev, armPos, velocityUnits::pct);
 
-    //adds 1 per time to the array/vector/whatever so that it can retreive the correct things from the list
+    //adds 1 per time to the array/vector/whatever so that it can retreive the caaorrect things from the list
     runLoc += 1;
 
     Controller.Screen.setCursor(2, 1);
@@ -308,7 +330,6 @@ void replaySystem() {
     task::sleep(100);
 
   }
-
 }
 
 //normal driving
@@ -353,6 +374,12 @@ void driverSystem() {
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
 
+      Controller.ButtonL1.pressed(whenC1L1Pressed);
+      Controller.ButtonL2.pressed(whenC1L2Pressed);
+
+    
+
+
     if (Controller.ButtonDown.pressing()) {
       //driveCancel = true;
       Controller.Screen.clearScreen();
@@ -364,5 +391,6 @@ void driverSystem() {
 
   }
 }
+
 
 // ACTUAL FUNCTIONS END
