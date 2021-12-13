@@ -95,11 +95,6 @@ int main() {
     Controller.Screen.clearScreen();
     Controller.Screen.setCursor(1, 1);
     Controller.Screen.print("Menu:");
-    Controller.Screen.setCursor(2, 1);
-    Controller.Screen.print("left:drive up:record");
-    Controller.Screen.setCursor(3, 1);
-    Controller.Screen.print("right:replay down:exit");
-
 
     if (Controller.ButtonUp.pressing()) {
       task::sleep(250);
@@ -408,4 +403,4 @@ void driverSystem() {
 }
 
 
-// ACTUAL FUNCTIONS END 
+// ACTUAL FUNCTIONS END
