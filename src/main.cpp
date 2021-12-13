@@ -57,7 +57,8 @@ int runLocCheck = 0;
 std::vector<double> leftSide;
 std::vector<double> rightSide;
 std::vector<double> claw;
-std::vector<double> arm;
+std::vector<double> lift;
+std::vector<double> lift2;
 
 
 // Define Function
@@ -163,6 +164,10 @@ void recordCheck() {
     //if startRecord = true then starts the recording proccess
     if (startRecord) {
       //records the controller positions
+      Controller.Screen.clearScreen();
+      Controller.Screen.setCursor(1, 1);
+      Controller.Screen.print("testing");
+
       int controller3Pos = Controller.Axis3.position();
       int controller1Pos = Controller.Axis1.position();
 
@@ -188,6 +193,10 @@ void recordSystem() {
   //put in timer so that the timing is exact in the recording
   timer::event(recordSystem, 40);
 
+  Controller.Screen.clearScreen();
+  Controller.Screen.setCursor(1, 1);
+  Controller.Screen.print("testing");
+
   //used double variables for more accurate numbers
   double speed, turn;
   double left, right;
@@ -196,7 +205,7 @@ void recordSystem() {
   while (true) {
     speed = Controller.Axis3.position();
     turn = Controller.Axis1.position();
-    double armPos = Controller.Axis2.position();
+    double liftPos = Controller.Axis2.position();
     double clawOpen = Controller.ButtonR1.pressing();
     double clawClose = Controller.ButtonR2.pressing();
     clawClose = clawClose * -1;
@@ -234,10 +243,12 @@ void recordSystem() {
     leftSide.push_back(left);
     rightSide.push_back(right);
     claw.push_back(clawFull);
-    arm.push_back(armPos);
+    lift.push_back(liftPos);
 
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
+    LiftMotor1.spin(directionType::rev, liftPos, velocityUnits::pct);
+    LiftMotor2.spin(directionType::rev, liftPos, velocityUnits::pct);
     //basically saying that there is a recording that's created
     hasStarted = true;
 
@@ -298,6 +309,10 @@ void checkReplay() {
 void replaySystem() {
   //if (stopLoop) {
   timer::event(replaySystem, 40);
+  Controller.Screen.clearScreen();
+  Controller.Screen.setCursor(1, 1);
+  Controller.Screen.print("testing");
+
   
   //}
 
@@ -305,14 +320,14 @@ void replaySystem() {
   while (true) {
     double & left = leftSide.at(runLoc);
     double & right = rightSide.at(runLoc);
-    double & armPos = arm.at(runLoc);
+    double & liftPos = lift.at(runLoc);
     double & clawFull = claw.at(runLoc);
 
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
     ClawMotor.spin(directionType::rev, clawFull, velocityUnits::pct);
-    LiftMotor1.spin(directionType::rev, armPos, velocityUnits::pct);
-    LiftMotor2.spin(directionType::rev, armPos, velocityUnits::pct);
+    LiftMotor1.spin(directionType::rev, liftPos, velocityUnits::pct);
+    LiftMotor2.spin(directionType::rev, liftPos, velocityUnits::pct);
 
     //adds 1 per time to the array/vector/whatever so that it can retreive the caaorrect things from the list
     runLoc += 1;
@@ -393,4 +408,4 @@ void driverSystem() {
 }
 
 
-// ACTUAL FUNCTIONS END
+// ACTUAL FUNCTIONS END 
