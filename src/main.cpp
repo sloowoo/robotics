@@ -159,9 +159,7 @@ void recordCheck() {
     //if startRecord = true then starts the recording proccess
     if (startRecord) {
       //records the controller positions
-      Controller.Screen.clearScreen();
-      Controller.Screen.setCursor(1, 1);
-      Controller.Screen.print("testing");
+
 
       int controller3Pos = Controller.Axis3.position();
       int controller1Pos = Controller.Axis1.position();
@@ -188,9 +186,7 @@ void recordSystem() {
   //put in timer so that the timing is exact in the recording
   timer::event(recordSystem, 40);
 
-  Controller.Screen.clearScreen();
-  Controller.Screen.setCursor(1, 1);
-  Controller.Screen.print("testing");
+
 
   //used double variables for more accurate numbers
   double speed, turn;
@@ -318,9 +314,32 @@ void replaySystem() {
     double & liftPos = lift.at(runLoc);
     double & clawFull = claw.at(runLoc);
 
+    double clawOpen = 0;
+    double clawClose = 0;
+
+    if (clawFull > 0) {
+      clawOpen = clawFull;
+    }
+    else if (clawFull < 0) {
+      clawClose = clawFull;
+    }
+
+
+    if (clawOpen < 0) {
+      ClawMotor.spin(directionType::rev, clawOpen, velocityUnits::pct);
+    }
+
+    else if (clawOpen < 0) {
+      ClawMotor.spin(directionType::rev, clawClose, velocityUnits::pct);
+    }
+    
+    else {
+      ;
+    }
+
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
-    ClawMotor.spin(directionType::rev, clawFull, velocityUnits::pct);
+    //ClawMotor.spin(directionType::rev, clawFull, velocityUnits::pct);
     LiftMotor1.spin(directionType::rev, liftPos, velocityUnits::pct);
     LiftMotor2.spin(directionType::rev, liftPos, velocityUnits::pct);
 
@@ -403,4 +422,4 @@ void driverSystem() {
 }
 
 
-// ACTUAL FUNCTIONS END
+// ACTUAL FUNCTIONS END 
