@@ -42,6 +42,7 @@ bool driveCancel = false;
 bool replayFinished = false;
 bool replayEnd = false;
 bool stopLoop = true;
+bool endReplaySuccess = false;
 
 float speedFactor = 0.5;
 float turnFactor = 0.8;
@@ -52,6 +53,7 @@ int speedDeadZoneNeg = speedDeadZone * -1;
 int turnDeadZoneNeg = turnDeadZone * -1;
 int runLoc = 0;
 int runLocCheck = 0;
+int recordNum = 0;
 
 //vectors
 std::vector<double> leftSide;
@@ -67,6 +69,7 @@ void replaySystem();
 void driverSystem();
 void recordCheck();
 void checkReplay();
+void clearVector();
 
 void whenC1L1Pressed() {
   LiftMotor1.spin(forward);
@@ -84,12 +87,23 @@ void whenC1L2Pressed() {
   LiftMotor2.stop();
 }
 
+
 // Main
 int main() {
   vexcodeInit();
 
+
   //menu is defined as true above (we have no idea why we couldn't just do while (true))
   while (menu) {
+
+    if (endReplaySuccess) {
+      Controller.Screen.clearScreen();
+      runLoc = 0;
+      hasStarted = true;
+      vex::task::sleep(1000);
+      endReplaySuccess = false;
+  }
+
     shouldEndFirst = false;
 
     Controller.Screen.clearScreen();
@@ -97,14 +111,28 @@ int main() {
     Controller.Screen.print("Menu:");
 
     if (Controller.ButtonUp.pressing()) {
-      task::sleep(250);
-      recordCheck();
+      if (hasStarted == false) {
+        task::sleep(250);
+        recordNum = 0;
+        recordCheck();
+      }
+
+      else if (hasStarted) {
+        hasStarted = false;
+        clearVector();
+        recordNum = 0;
+        task::sleep(250);
+        recordCheck();
+      }
+
+      
     }
 
     else if (Controller.ButtonRight.pressing()) {
       task::sleep(250);
       checkReplay();
     }
+      
 
     else if (Controller.ButtonLeft.pressing()) {
       task::sleep(250);
@@ -236,6 +264,8 @@ void recordSystem() {
     claw.push_back(clawFull);
     lift.push_back(liftPos);
 
+    recordNum += 1;
+
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
     LiftMotor1.spin(directionType::rev, liftPos, velocityUnits::pct);
@@ -300,11 +330,9 @@ void checkReplay() {
 void replaySystem() {
   //if (stopLoop) {
   timer::event(replaySystem, 40);
-  Controller.Screen.clearScreen();
-  Controller.Screen.setCursor(1, 1);
-  Controller.Screen.print("testing");
+  //Controller.Screen.clearScreen();
+  //Controller.Screen.setCursor(1, 1);
 
-  
   //}
 
 
@@ -351,10 +379,18 @@ void replaySystem() {
 
     runLocCheck = runLoc + 2;
 
-    if (Controller.ButtonDown.pressing()) {
+    
+    if (runLocCheck > recordNum) {
+      endReplaySuccess = true;
+      return;
+    }
+
+    /*
+    else if (Controller.ButtonDown.pressing()) {
       replayFinished = true;
       return;
     }
+    */
 
     task::sleep(100);
 
@@ -419,6 +455,15 @@ void driverSystem() {
     }
 
   }
+}
+
+
+void clearVector() {
+  leftSide.clear();
+  rightSide.clear();
+  claw.clear();
+  lift.clear();
+  lift2.clear();
 }
 
 
