@@ -8,13 +8,14 @@ using namespace vex;
 
 
 //motors
+//T/F checked
 motor frontLeftMotor = motor(PORT10, ratio18_1, true);
 motor frontRightMotor = motor(PORT1, ratio18_1, false);
 motor backLeftMotor = motor(PORT17, ratio18_1, true);
 motor backRightMotor = motor(PORT16, ratio18_1, false);
 motor LiftMotor1 = motor(PORT19, ratio18_1, true);   
-motor LiftMotor2 = motor(PORT8, ratio18_1, false);        // T/F not checked
-motor ClawMotor = motor(PORT18, ratio18_1, false);       // T/F not checked
+motor LiftMotor2 = motor(PORT8, ratio18_1, false);  
+motor ClawMotor = motor(PORT18, ratio18_1, false); 
 
 
 //motor groups
@@ -63,53 +64,46 @@ std::vector<double> lift;
 std::vector<double> lift2;
 
 
-// Define Function
+//defining functions
+//actual functions are below main
+//reason we defined the functions up here and put the actual functions at the end is 
+//so we don't have a bunch of stuff before main
 void recordSystem();
 void replaySystem();
 void driverSystem();
 void recordCheck();
 void checkReplay();
 void clearVector();
+void LiftUp();
+void LiftDown();
 
-void whenC1L1Pressed() {
-  LiftMotor1.spin(forward);
-  LiftMotor2.spin(forward);
-  waitUntil(!Controller.ButtonL1.pressing());
-  LiftMotor1.stop();
-  LiftMotor2.stop();
-}
-
-void whenC1L2Pressed() {
-  LiftMotor1.spin(reverse);
-  LiftMotor2.spin(reverse);
-  waitUntil(!Controller.ButtonL2.pressing());
-  LiftMotor1.stop();
-  LiftMotor2.stop();
-}
-
-
-// Main
+//main
 int main() {
   vexcodeInit();
-
-
-  //menu is defined as true above (we have no idea why we couldn't just do while (true))
+  //menu is defined as true above
+  //so if we don't want the program to run we can just set menu=false
   while (menu) {
 
+    //after recording replay is finished
     if (endReplaySuccess) {
       Controller.Screen.clearScreen();
       runLoc = 0;
+      //tell robot that a recording exists
       hasStarted = true;
       vex::task::sleep(1000);
+      //sets this function to false again so replay can run
       endReplaySuccess = false;
   }
 
+    //we know that shouldEndFirst is already defined as false above
+    //but when we get rid of this line the code doesn't work so here it stays
     shouldEndFirst = false;
 
     Controller.Screen.clearScreen();
     Controller.Screen.setCursor(1, 1);
     Controller.Screen.print("Menu:");
 
+    //record 
     if (Controller.ButtonUp.pressing()) {
       if (hasStarted == false) {
         task::sleep(250);
@@ -128,12 +122,13 @@ int main() {
       
     }
 
+    //replay
     else if (Controller.ButtonRight.pressing()) {
       task::sleep(250);
       checkReplay();
     }
       
-
+    //drive
     else if (Controller.ButtonLeft.pressing()) {
       task::sleep(250);
       driverSystem();
@@ -187,15 +182,13 @@ void recordCheck() {
     //if startRecord = true then starts the recording proccess
     if (startRecord) {
       //records the controller positions
-
-
       int controller3Pos = Controller.Axis3.position();
       int controller1Pos = Controller.Axis1.position();
 
       int test3Pos = abs(controller3Pos);
       int test1Pos = abs(controller1Pos);
 
-      //these deadzone lines make it so that the controller doesn't record until the driver actually leaves the deadzone
+      //these deadzones make it so that the controller doesn't record until the driver actually leaves the deadzone
       if (test3Pos > speedDeadZone) {
         startRecord = false;
         recordSystem();
@@ -214,8 +207,6 @@ void recordSystem() {
   //put in timer so that the timing is exact in the recording
   timer::event(recordSystem, 40);
 
-
-
   //used double variables for more accurate numbers
   double speed, turn;
   double left, right;
@@ -225,14 +216,16 @@ void recordSystem() {
     speed = Controller.Axis3.position();
     turn = Controller.Axis1.position();
     double liftPos = Controller.Axis2.position();
-    double clawOpen = Controller.ButtonR1.pressing();
-    double clawClose = Controller.ButtonR2.pressing();
-    clawClose = clawClose * -1;
-    double clawFull = clawClose + clawOpen;
+    double liftUp = Controller.ButtonL1.pressing();
+    double liftDown = Controller.ButtonL1.pressing();
+    liftDown = liftDown * -1;
+    double liftFull = liftDown + liftUp;
+    // double clawOpen = Controller.ButtonR1.pressing();
+    // double clawClose = Controller.ButtonR2.pressing();
+    // clawClose = clawClose * -1;
+    // double clawFull = clawClose + clawOpen;
 
     if (deadZoneCheck == true) {
-      
-
       if (speed > 0 && speed < speedDeadZone) {
         speed = 0;
       }
@@ -261,7 +254,7 @@ void recordSystem() {
 
     leftSide.push_back(left);
     rightSide.push_back(right);
-    claw.push_back(clawFull);
+    // claw.push_back(clawFull);
     lift.push_back(liftPos);
 
     recordNum += 1;
@@ -291,10 +284,8 @@ void recordSystem() {
 
 //replays the recording
 void checkReplay() {
-  //error test
+
   while (true) {
-    // Controller.Screen.setCursor(3, 1);
-    // Controller.Screen.print("tests");
 
     if (replayFinished) {
       Controller.Screen.clearScreen();
@@ -328,37 +319,59 @@ void checkReplay() {
 
 //replaying code
 void replaySystem() {
-  //if (stopLoop) {
+
   timer::event(replaySystem, 40);
-  //Controller.Screen.clearScreen();
-  //Controller.Screen.setCursor(1, 1);
-
-  //}
-
 
   while (true) {
     double & left = leftSide.at(runLoc);
     double & right = rightSide.at(runLoc);
     double & liftPos = lift.at(runLoc);
-    double & clawFull = claw.at(runLoc);
+    double & liftFull = lift.at(runLoc);
+    // double & clawFull = claw.at(runLoc);
+    
+    double liftUp = 0;
+    double liftDown = 0;
+    // double clawOpen = 0;
+    // double clawClose = 0;
 
-    double clawOpen = 0;
-    double clawClose = 0;
-
-    if (clawFull > 0) {
-      clawOpen = clawFull;
+    if (liftFull > 0) {
+      liftUp = liftFull;
     }
-    else if (clawFull < 0) {
-      clawClose = clawFull;
-    }
-
-
-    if (clawOpen < 0) {
-      ClawMotor.spin(directionType::rev, clawOpen, velocityUnits::pct);
+    else if (liftFull < 0) {
+      liftDown = liftFull;
     }
 
-    else if (clawOpen < 0) {
-      ClawMotor.spin(directionType::rev, clawClose, velocityUnits::pct);
+    // if (clawFull > 0) {
+    //   clawOpen = clawFull;
+    // }
+    // else if (clawFull < 0) {
+    //   clawClose = clawFull;
+    // }
+
+
+
+
+    // if (clawOpen < 0) {
+    //   ClawMotor.spin(directionType::rev, clawOpen, velocityUnits::pct);
+    // }
+
+    // else if (clawOpen < 0) {
+    //   ClawMotor.spin(directionType::rev, clawClose, velocityUnits::pct);
+    // }
+    
+    // else {
+    //   ;
+    // }
+
+
+     if (liftUp < 0) {
+      LiftMotor1.spin(directionType::rev, liftUp, velocityUnits::pct);
+      LiftMotor2.spin(directionType::rev, liftUp, velocityUnits::pct);
+    }
+
+    else if (liftDown < 0) {
+      LiftMotor1.spin(directionType::rev, liftDown, velocityUnits::pct);
+      LiftMotor2.spin(directionType::rev, liftDown, velocityUnits::pct);
     }
     
     else {
@@ -368,8 +381,8 @@ void replaySystem() {
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
     //ClawMotor.spin(directionType::rev, clawFull, velocityUnits::pct);
-    LiftMotor1.spin(directionType::rev, liftPos, velocityUnits::pct);
-    LiftMotor2.spin(directionType::rev, liftPos, velocityUnits::pct);
+    // LiftMotor1.spin(directionType::rev, liftPos, velocityUnits::pct);
+    // LiftMotor2.spin(directionType::rev, liftPos, velocityUnits::pct);
 
     //adds 1 per time to the array/vector/whatever so that it can retreive the caaorrect things from the list
     runLoc += 1;
@@ -439,12 +452,10 @@ void driverSystem() {
     leftDrive.spin(directionType::rev, left, velocityUnits::pct);
     rightDrive.spin(directionType::rev, right, velocityUnits::pct);
 
-      Controller.ButtonL1.pressed(whenC1L1Pressed);
-      Controller.ButtonL2.pressed(whenC1L2Pressed);
+      Controller.ButtonL1.pressed(LiftUp);
+      Controller.ButtonL2.pressed(LiftDown);
 
-    
-
-
+  
     if (Controller.ButtonDown.pressing()) {
       //driveCancel = true;
       Controller.Screen.clearScreen();
@@ -466,5 +477,20 @@ void clearVector() {
   lift2.clear();
 }
 
+void LiftUp() {
+  LiftMotor1.spin(forward);
+  LiftMotor2.spin(forward);
+  waitUntil(!Controller.ButtonL1.pressing());
+  LiftMotor1.stop();
+  LiftMotor2.stop();
+}
+
+void LiftDown() {
+  LiftMotor1.spin(reverse);
+  LiftMotor2.spin(reverse);
+  waitUntil(!Controller.ButtonL2.pressing());
+  LiftMotor1.stop();
+  LiftMotor2.stop();
+}
 
 // ACTUAL FUNCTIONS END 
