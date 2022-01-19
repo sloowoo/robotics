@@ -1,2 +1,3 @@
 # robotics
-A repository for the robotics afternoon program - anyone in the program can edit (PLEASE CREATE NEW BRANCHES WHEN YOU DO. PLEASE. I had co-owners of repositories that just didn't branch and it was PAINFUL.)
+A repository for the Williston robotics afternoon program.
+2021-2022 Tipping Point!
