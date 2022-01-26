@@ -30,14 +30,14 @@ drivetrain Drivetrain = drivetrain(leftDrive, rightDrive, 345, 360, 340, mm, 1);
 controller Controller = controller();
 
 
-#define MAX 3
+#define MAX 4
 
 int i = 0;
 
 float length =  5;
 float width  = 10;
 float height = 20;
-float movement;
+double movement;
 
 // declare Contoller event callbacks
 
@@ -48,6 +48,7 @@ int main() {
   float speed = 60;
   float driveDistance = 20;
   float turnDegrees = 90;
+  float diameter = 4.25;
   int index = 0;
 
   // float length =  5;
@@ -60,6 +61,7 @@ int main() {
     names[0] = "rpm"; variables[0] = &speed;    deltas[0] =  2;
     names[1] = "distance";  variables[1] = &driveDistance; deltas[1] =  1;
     names[2] = "degrees";   variables[2] = &turnDegrees;    deltas[2] =  1;
+    names[3] = "diameter";   variables[3] = &diameter;    deltas[3] =  0.05;
 
   while (true) {
     // calibration loop. do until ButtonA is pressing (pressed). this will give
@@ -95,11 +97,10 @@ int main() {
 
     } while (!Controller.ButtonA.pressing());
 
-    leftDrive.setVelocity(speed, rpm);
-    rightDrive.setVelocity(speed, rpm);
-    //distance/circumfrence is the amount of revolutions it needs to travel, and then that times 360 is the amount of degrees
-    movement = (driveDistance/(4*M_PI))*360;
+    wait(25, msec);
 
+    //distance/circumfrence is the amount of revolutions it needs to travel, and then that times 360 is the amount of degrees
+    movement = (driveDistance/(diameter*M_PI))*360;
 
     //for the back lift motors, the motor configuration is 12T against 36T, and the 36T is CONNECTED with a bar to another 12T
     //and that 12T is against a 60T
@@ -107,13 +108,17 @@ int main() {
     
     //for the front lift motors, the motor configuration is 12T against 104T, so each time
     //the motor rotates once, the gear connected to the lift bars rotates 104/12 of a revolution
-
-    leftDrive.spinTo(movement, degrees, speed, rpm, false);
-    rightDrive.spinTo(movement, degrees, speed, rpm, false);
+    Controller.Screen.setCursor(1,1);
+    Controller.Screen.print(movement);
+    leftDrive.resetRotation();
+    rightDrive.resetRotation();
+    wait(25, msec);
+    leftDrive.spinToPosition(movement, deg, speed, rpm, false);
+    rightDrive.spinToPosition(movement, deg, speed, rpm, true);
     leftDrive.stop();
     rightDrive.stop();
 
-    
+
 
     wait(25, msec);
   }
