@@ -52,11 +52,11 @@ double movement5;
 int main() {
   vexcodeInit();
 
-  float speed = 100;
+  float speed = 125;
   float driveDistance = 52;
   float turnDegrees = 90;
   float diameter = 4.35;
-  float liftSpeed = 180;
+  float liftSpeed = 200;
   float liftDeg = 675;
   float rotleft = 50;
   float rotright = 50;
@@ -119,7 +119,7 @@ int main() {
     movement2 = (32/(diameter*M_PI))*360;
     movement3 = (12/(diameter*M_PI))*360;
     movement4 = (16/(diameter*M_PI))*360;
-    movement4 = (10/(diameter*M_PI))*360;
+    movement4 = (15/(diameter*M_PI))*360;
 
     //for the back lift motors, the motor configuration is 12T against 36T, and the 36T is CONNECTED with a bar to another 12T
     //and that 12T is against a 60T
@@ -154,8 +154,8 @@ int main() {
 
 // leftDrive.resetRotation();
 // rightDrive.resetRotation();
-//   leftDrive.spinToPosition(165, deg, speed, rpm, false);
-//   rightDrive.spinToPosition(-165, deg, speed, rpm, true);
+//   leftDrive.spinToPosition(170, deg, speed, rpm, false);
+//   rightDrive.spinToPosition(-170, deg, speed, rpm, true);
   
 // leftDrive.resetRotation();
 // rightDrive.resetRotation();
@@ -178,13 +178,23 @@ int main() {
 // wait(100, msec);
 
 
+
+
+
+
+
+
+
+
+
+
 backLiftMotors.spinToPosition(1870, deg, 200, rpm, false);
 leftDrive.spinToPosition(-movement3, deg, 150, rpm, false);
 rightDrive.spinToPosition(-movement3, deg, 150, rpm, true);
     leftDrive.resetRotation();
     rightDrive.resetRotation();
-leftDrive.spinToPosition(36, deg, 150, rpm, false);
-rightDrive.spinToPosition(-36, deg, 150, rpm, false);
+leftDrive.spinToPosition(40, deg, 150, rpm, false);
+rightDrive.spinToPosition(-40, deg, 150, rpm, false);
 wait(100, msec);
     leftDrive.resetRotation();
     rightDrive.resetRotation();
@@ -200,15 +210,19 @@ rightDrive.spinToPosition(movement5, deg, 150, rpm, true);
 
 backLiftMotors.resetRotation();
 backLiftMotors.spinToPosition(liftDeg, deg, 200, rpm, true);
-wait(100, msec);
+// wait(100, msec);
   
     backLiftMotors.stop();
     leftDrive.stop();
     rightDrive.stop();
 
 
+// if (Controller.ButtonB.pressing()){
+// backLiftMotors.spinToPosition(-1870, deg, 200, rpm, true);
+// wait(100, msec);
+// waitUntil(!Controller.ButtonB.pressing());
 
-
+// }
 
     wait(25, msec);
   }
