@@ -8,16 +8,17 @@
 using namespace vex;
 #define MAX 3
 
+
 //motors
 //T/F checked
-motor frontLeftMotor = motor(PORT17, ratio18_1, false);
-motor frontRightMotor = motor(PORT10, ratio18_1, true);
-motor backLeftMotor = motor(PORT1, ratio18_1, false);
-motor backRightMotor = motor(PORT20, ratio18_1, true);
-motor BackLift1 = motor(PORT7, ratio18_1, true);   
-motor ClawMotor = motor(PORT18, ratio18_1, false); 
-motor BackLift2 = motor(PORT5, ratio18_1, false);  
-motor LiftMotor = motor(PORT16, ratio18_1, false);  
+motor frontLeftMotor = motor(PORT18, ratio18_1, false);
+motor frontRightMotor = motor(PORT7, ratio18_1, true);
+motor backLeftMotor = motor(PORT19, ratio18_1, false);
+motor backRightMotor = motor(PORT5, ratio18_1, true);
+motor BackLift1 = motor(PORT20, ratio18_1, true);   
+motor ClawMotor = motor(PORT6, ratio18_1, false); 
+motor BackLift2 = motor(PORT10, ratio18_1, false);  
+motor LiftMotor = motor(PORT8, ratio18_1, false);  
 
 
 //motor groups
@@ -44,17 +45,25 @@ void clawDown();
 
 int deadband = 25;  
 
+int b = 0;
+
+float speedarr[3] = {0.55, 0.40, 0.20};
+
+
 int main() {
   vexcodeInit();
-Controller.rumble("..-..");
+
+
 
   while (true) {
-    if (Controller.Axis3.position() <0){
-      axis4 = Controller.Axis4.position()*-1;
-    }
-    else{
-      axis4 = Controller.Axis4.position();
-    }
+
+
+    // if (Controller.Axis3.position() <0){
+    //   axis4 = Controller.Axis4.position()*-1;
+    // }
+    // else{
+    //   axis4 = Controller.Axis4.position();
+    // }
 
     // Get the velocity percentage of the left motor. (Axis3 + Axis4)
     int LeftDriveSpeed =
@@ -130,14 +139,69 @@ Controller.rumble("..-..");
     Controller.ButtonR1.pressed(clawUp);
     Controller.ButtonR2.pressed(clawDown);
 
-    if (Controller.ButtonUp.pressing()) {
-      perct = 0.55;
-      wait(150, msec);
+    if (Controller.ButtonDown.pressing()) {
+      if (b>=2) {
+        wait(100, msec);
+        b = 0;
+      }
+      
+      else {
+        wait(100, msec);
+        b += 1;
+      }
+      perct = speedarr[b];
+
+
     }
     
-     if (Controller.ButtonDown.pressing()) {
-      perct = 0.20;
-      wait(150, msec);
+     if (Controller.ButtonUp.pressing()) {
+    
+          if (b<=0) {
+            wait(100, msec);
+        b = 2;
+      }
+                                                                    //
+                                                                    else {
+                         b -= 1;
+                  wait(100, msec);
+                       }
+
+    ///////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  ////////////////                                                       /////
+///////////////                                                           /////
+//////////////                              amooga awooga                   ////
+/////////////                                                               ////
+//////////////                                                              ////
+///////////////                                                            ////
+////////////////                                                         /////
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////          ///////////////////
+//////////////////////////////////////////////////////////////////////////////        ////////             //
+//////////////////////////////////////////////////////////////////////////////        ///////     awoo      //
+///////////////////////////////             /////////////////////////////////         ////////             //
+///////////////////////////////             ////////////////////////////////          //////////////////////
+///////////////////////////////              ///////////////////////////////          //////////////////////
+///////////////////////////////             ////////////////////////////////          //////////////////////
+///////////////////////////////             ///////////////////////////////            ////////////////////
+///////////////////////////////             ///////////////////////////////             ///////////////////
+ //////////////////////////////              ////////////////////////////               ////////  ////////
+  ///////////////////////////                  /////////////////////////                 //////    //////
+
+
+      perct = speedarr[b];
     }
 
     Controller.Screen.clearScreen();
@@ -197,7 +261,3 @@ void clawDown(){
   waitUntil(!Controller.ButtonR2.pressing());
   ClawMotor.stop();
 }
-
-
-
-
