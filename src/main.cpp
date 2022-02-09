@@ -25,72 +25,43 @@ motor_group leftDrive = motor_group(frontLeftMotor, backLeftMotor);
 motor_group rightDrive = motor_group(frontRightMotor,backRightMotor);
 motor_group backLiftMotors = motor_group(BackLift1, BackLift2);
 
-
-//drivetrain
-drivetrain Drivetrain = drivetrain(leftDrive, rightDrive, 345, 360, 340, mm, 1);
 //controller
 controller Controller = controller();
 
 
-
 int count = 0;
+int axis4;
 
-float perct = 0.6;
+float perct = 0.55;
+double multiplier = Controller.Axis4.position()*(-1);
 
 
-void liftUp(){
-  LiftMotor.spin(forward, 50, pct);
-  wait(25, msec);
-  waitUntil(!Controller.ButtonL1.pressing());
-  LiftMotor.stop();
-}
+void twerk();
+void liftUp();
+void liftDown();
+void clawUp();
+void clawDown();
 
-void liftDown(){
-  LiftMotor.spin(reverse, 50, pct);
-  wait(25, msec);
-  waitUntil(!Controller.ButtonL2.pressing());
-  LiftMotor.stop();
-}
-
-void clawUp(){
-  ClawMotor.spin(reverse, 10, pct);
-  wait(25, msec);
-  waitUntil(!Controller.ButtonR1.pressing());
-  ClawMotor.stop();
-}
-
-void clawDown(){
-  ClawMotor.spin(forward, 10, pct);
-  wait(25, msec);
-  waitUntil(!Controller.ButtonR2.pressing());
-  ClawMotor.stop();
-}
-
-void pre_auton(void) {
-  // Initializing Robot Configuration. DO NOT REMOVE!
-  vexcodeInit();
-
-}
-
-void autonomous(void) {
-
-  
-}
+int deadband = 25;  
 
 int main() {
   vexcodeInit();
-int deadband = 15;
+Controller.rumble("..-..");
 
-
-    
   while (true) {
+    if (Controller.Axis3.position() <0){
+      axis4 = Controller.Axis4.position()*-1;
+    }
+    else{
+      axis4 = Controller.Axis4.position();
+    }
 
     // Get the velocity percentage of the left motor. (Axis3 + Axis4)
     int LeftDriveSpeed =
-        Controller.Axis3.position() + Controller.Axis4.position();
+        Controller.Axis3.position() + axis4;
     // Get the velocity percentage of the right motor. (Axis3 - Axis4)
     int RightDriveSpeed =
-        Controller.Axis3.position() - Controller.Axis4.position();
+        Controller.Axis3.position() - axis4;
 
     int BackLiftSpeed = Controller.Axis2.position();
     // Set the speed of the left motor. If the value is less than the deadband,
@@ -111,21 +82,23 @@ int deadband = 15;
       rightDrive.setVelocity(RightDriveSpeed*perct, percent);
     }
 
+
     leftDrive.spin(forward);
     rightDrive.spin(forward);
 
 
-    LiftMotor.setStopping(hold);
-    ClawMotor.setStopping(hold);
-    backLiftMotors.setStopping(hold);
 
     // ClawMotor.setVelocity(50, pct);
     //liftMotors.setVelocity(50, pct);
     backLiftMotors.setVelocity(BackLiftSpeed*0.7, pct);
     BackLift1.spin(reverse);
     BackLift2.spin(reverse);
+        LiftMotor.setStopping(hold);
+    ClawMotor.setStopping(hold);
+    backLiftMotors.setStopping(hold);
 
-  while (Controller.ButtonX.pressing()){
+
+  while (Controller.ButtonY.pressing()){
 
       rightDrive.spin(forward, 10, pct);
   leftDrive.spin(reverse, 10, pct);
@@ -134,14 +107,22 @@ int deadband = 15;
   leftDrive.stop();
   }
 
-  while (Controller.ButtonY.pressing()){
+  while (Controller.ButtonA.pressing()){
 
-      rightDrive.spin(reverse, 10, pct);
+  rightDrive.spin(reverse, 10, pct);
   leftDrive.spin(forward, 10, pct);
   wait(200, msec);
   rightDrive.stop();
   leftDrive.stop();
   }
+
+
+
+  while (Controller.ButtonX.pressing()){
+    twerk();
+    wait(25, msec);
+  }
+
 
     Controller.ButtonL1.pressed(liftUp);
     Controller.ButtonL2.pressed(liftDown);
@@ -150,12 +131,12 @@ int deadband = 15;
     Controller.ButtonR2.pressed(clawDown);
 
     if (Controller.ButtonUp.pressing()) {
-      perct += 0.05;
+      perct = 0.55;
       wait(150, msec);
     }
     
      if (Controller.ButtonDown.pressing()) {
-      perct -= 0.05;
+      perct = 0.20;
       wait(150, msec);
     }
 
@@ -169,3 +150,54 @@ int deadband = 15;
 
   
 }
+
+
+void twerk(){
+
+  //a for loop to make the robot shake back and forth 2 times
+  for (int i = 0; i<2; i++ ){
+    leftDrive.resetRotation();
+    rightDrive.resetRotation();
+    leftDrive.spinToPosition(80, deg, 200, rpm, false);
+    rightDrive.spinToPosition(80, deg, 200, rpm, true);
+    leftDrive.resetRotation();
+    rightDrive.resetRotation();
+    leftDrive.spinToPosition(-80, deg, 200, rpm, false);
+    rightDrive.spinToPosition(-80, deg, 200, rpm, true);
+  }
+  return;
+
+}
+
+
+void liftUp(){
+  LiftMotor.spin(forward, 50, pct);
+  wait(25, msec);
+  waitUntil(!Controller.ButtonL1.pressing());
+  LiftMotor.stop();
+}
+
+void liftDown(){
+  LiftMotor.spin(reverse, 50, pct);
+  wait(25, msec);
+  waitUntil(!Controller.ButtonL2.pressing());
+  LiftMotor.stop();
+}
+
+void clawUp(){
+  ClawMotor.spin(reverse, 20, pct);
+  wait(25, msec);
+  waitUntil(!Controller.ButtonR1.pressing());
+  ClawMotor.stop();
+}
+
+void clawDown(){
+  ClawMotor.spin(forward, 20, pct);
+  wait(25, msec);
+  waitUntil(!Controller.ButtonR2.pressing());
+  ClawMotor.stop();
+}
+
+
+
+
