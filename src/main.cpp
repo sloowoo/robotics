@@ -15,9 +15,9 @@ motor frontRightMotor = motor(PORT7, ratio18_1, true);
 motor backLeftMotor = motor(PORT19, ratio18_1, false);
 motor backRightMotor = motor(PORT5, ratio18_1, true);
 motor BackLift1 = motor(PORT20, ratio18_1, true);
-motor ClawMotor = motor(PORT6, ratio18_1, false);
+motor ClawMotor = motor(PORT8, ratio18_1, false);
 motor BackLift2 = motor(PORT10, ratio18_1, false);
-motor LiftMotor = motor(PORT8, ratio18_1, false);
+motor LiftMotor = motor(PORT6, ratio18_1, false);
 
 // motor groups
 motor_group leftDrive = motor_group(frontLeftMotor, backLeftMotor);
@@ -98,11 +98,10 @@ void clawDown() {
 }
 
 int deadband = 15;
-
 //used for the speedarr to loop through the array at lines around 300
 int b = 0;
 //the array of percentages you can set the robot's velocity at
-float speedarr[3] = {0.55, 0.40, 0.20};
+float speedarr[4] = {0.95, .55, 0.40, 0.20};
 
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
@@ -116,6 +115,7 @@ void autonomous(void) {
   wait(25, msec);
 
   // simple
+  /*
   //goes forward while puttin the lift down
   leftDrive.spinToPosition(-1369.83, deg, 125, rpm, false);
   rightDrive.spinToPosition(-1369.83, deg, 125, rpm, false);
@@ -148,8 +148,8 @@ void autonomous(void) {
   //goes forward
   leftDrive.resetRotation();
   rightDrive.resetRotation();
-  leftDrive.spinToPosition(-421.49, deg, 125, rpm, false);
-  rightDrive.spinToPosition(-421.49, deg, 125, rpm, true);
+  leftDrive.spinToPosition(-440.49, deg, 125, rpm, false);
+  rightDrive.spinToPosition(-440.49, deg, 125, rpm, true);
   wait(100, msec);
   //lift up
   backLiftMotors.resetRotation();
@@ -158,14 +158,14 @@ void autonomous(void) {
   //goes back
   leftDrive.resetRotation();
   rightDrive.resetRotation();
-  leftDrive.spinToPosition(421.49, deg, 125, rpm, false);
-  rightDrive.spinToPosition(421.49, deg, 125, rpm, true);
+  leftDrive.spinToPosition(440.49, deg, 125, rpm, false);
+  rightDrive.spinToPosition(440.49, deg, 125, rpm, true);
   //puts lift down
   backLiftMotors.resetRotation();
   backLiftMotors.spinToPosition(675, deg, 200, rpm, true);
-
+*/
   // complicated
-  /*
+  
   //puts lift down and goes forward
   backLiftMotors.spinToPosition(1870, deg, 200, rpm, false);
   leftDrive.spinToPosition(-316.11, deg, 150, rpm, false);
@@ -173,8 +173,8 @@ void autonomous(void) {
   //turns a bit
   leftDrive.resetRotation();
   rightDrive.resetRotation();
-  leftDrive.spinToPosition(40, deg, 150, rpm, false);
-  rightDrive.spinToPosition(-40, deg, 150, rpm, false);
+  leftDrive.spinToPosition(31, deg, 150, rpm, false);
+  rightDrive.spinToPosition(-31, deg, 150, rpm, false);
   wait(100, msec);
   //goes forward a bit
   leftDrive.resetRotation();
@@ -186,15 +186,15 @@ void autonomous(void) {
   backLiftMotors.spinToPosition(-675, deg, 200, rpm, true);
   wait(100, msec);
   //goes back
-  leftDrive.spinToPosition(395.14, deg, 150, rpm, false);
-  rightDrive.spinToPosition(395.14, deg, 150, rpm, true);
+  leftDrive.spinToPosition(200, deg, 150, rpm, false);
+  rightDrive.spinToPosition(200, deg, 150, rpm, true);
   //puts lift down
   backLiftMotors.resetRotation();
   backLiftMotors.spinToPosition(675, deg, 200, rpm, true);
-  */
+  
 
   wait(100, msec);
-  backLiftMotors.stop();
+  backLiftMotors.stop(); 
   leftDrive.stop();
   rightDrive.stop();
 }
@@ -242,12 +242,16 @@ void usercontrol(void) {
     rightDrive.spin(forward);
 
     backLiftMotors.setVelocity(BackLiftSpeed * 0.7, pct);
+    BackLift1.setVelocity(BackLiftSpeed * 0.7, pct);
+    BackLift1.setVelocity(BackLiftSpeed * 0.7, pct);
     BackLift1.spin(reverse);
     BackLift2.spin(reverse);
 
     LiftMotor.setStopping(hold);
     ClawMotor.setStopping(hold);
-    backLiftMotors.setStopping(hold);
+    // backLiftMotors.setStopping(hold);
+    BackLift1.setStopping(hold);
+    BackLift2.setStopping(hold);
 
     //nudge right
     while (Controller.ButtonY.pressing()) {
@@ -298,7 +302,7 @@ void usercontrol(void) {
     //and speedarr[] contains percentages which will be multiplied to the driving velocity
     //so the driver can change the robot's speed in real time
     if (Controller.ButtonDown.pressing()) {
-      if (b >= 2) {
+      if (b >= 3) {
         wait(100, msec);
         b = 0;
       }
@@ -312,7 +316,7 @@ void usercontrol(void) {
     if (Controller.ButtonUp.pressing()) {
       if (b <= 0) {
         wait(100, msec);
-        b = 2;
+        b = 3;
       }
       else {
         b -= 1;
