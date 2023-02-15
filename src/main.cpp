@@ -10,13 +10,13 @@ using namespace vex;
 
 //motors
 //T/F checked1
-motor frontLeftMotor = motor(PORT17, ratio18_1, false);
-motor frontRightMotor = motor(PORT19, ratio18_1, false);
-motor backLeftMotor = motor(PORT6, ratio18_1, false);
-motor backRightMotor = motor(PORT3, ratio18_1, false);
-motor intakeMotor = motor(PORT13, ratio18_1, false);
-motor shooterMotor = motor(PORT18, ratio18_1, true);
-motor flickMotor = motor(PORT7, ratio18_1, true);
+motor frontLeftMotor = motor(PORT12, ratio18_1, false);
+motor frontRightMotor = motor(PORT14, ratio18_1, false);
+motor backLeftMotor = motor(PORT10, ratio18_1, false);
+motor backRightMotor = motor(PORT2, ratio18_1, false);
+motor intakeMotor = motor(PORT11, ratio18_1, false);
+motor shooterMotor = motor(PORT13, ratio18_1, true);
+motor flickMotor = motor(PORT20, ratio18_1, true);
 //booleans for intake and shooter toggle
 bool intakeRunning = false;
 bool shooterRunning = false;
@@ -30,12 +30,15 @@ controller Controller = controller();
 //controls the motor that pushes the disk into the shooter
 void flick() {
     flickMotor.setVelocity(30, pct);
-    flickMotor.spinTo(15, degrees);
+    flickMotor.spinTo(30, degrees);
+    flickMotor.stop();
     wait(25, msec);
-    flickMotor.spinTo(-15, degrees);
+    flickMotor.spinTo(-30, degrees);
+    flickMotor.stop();
     wait(25, msec);
   }
 
+//intake
 void whenL1Pressed() {
   if (intakeRunning) {
     intakeMotor.stop();
@@ -50,6 +53,7 @@ void whenL1Pressed() {
   }
 }
 
+//shooter
 void whenR1Pressed() {
   if (shooterRunning) {
     shooterMotor.spin(reverse, 0, volt);
@@ -66,8 +70,8 @@ void whenR1Pressed() {
 }
 
 
+
 int main(void) {
-  
   //allows driver to calibrate driving speed
   float turnFactor = 0.5;
   float speedFactor = 0.5;
@@ -75,9 +79,11 @@ int main(void) {
   //used in y-speed-reverse around line 100
   int temp = 0;
   
+  //intake
   Controller.ButtonL1.pressed(whenL1Pressed);
+  //shooter
   Controller.ButtonR1.pressed(whenR1Pressed);
-  Controller.ButtonL2.pressed(flick);
+  Controller.ButtonR2.pressed(flick);
   intakeMotor.setStopping(hold);
 
   while (true) {
@@ -117,7 +123,12 @@ int main(void) {
 
     if (Controller.ButtonB.pressing()) {
       shootFactor -= .1;
-      shooterMotor.spin(reverse, 12.8*shootFactor, volt);
+      //shooterMotor.spin(reverse, 12.8*shootFactor, volt);
+    }
+
+    if (Controller.ButtonX.pressing()) {
+      shootFactor += .1;
+      //shooterMotor.spin(reverse, 12.8*shootFactor, volt);
     }
 
     Controller.Screen.setCursor(1, 1);
@@ -145,6 +156,7 @@ int main(void) {
       leftDrive.stop();
     }
 
+
     //nudge left
     while (Controller.ButtonY.pressing()) {
       rightDrive.spin(reverse, 10, pct);
@@ -154,8 +166,24 @@ int main(void) {
       leftDrive.stop();
     }
 
+
+    //twerk
+    // while (Controller.ButtonX.pressing()){
+    //   leftDrive.spinTo(30, degrees, false);
+    //   rightDrive.spinTo(30, degrees, true);
+    //   leftDrive.spinTo(-30, degrees, false);
+    //   rightDrive.spinTo(-30, degrees, true);
+
+    //   backLeftMotor.spinTo(30, degrees, false);
+    //   backRightMotor.spinTo(-30, degrees, false);
+    //   frontRightMotor.spinTo(-30, degrees, false);
+    //   frontLeftMotor.spinTo(30, degrees, true);
+
+    //   backLeftMotor.spinTo(-30, degrees, false);
+    //   backRightMotor.spinTo(30, degrees, false);
+    //   frontRightMotor.spinTo(30, degrees, false);
+    //   frontLeftMotor.spinTo(-30, degrees, true);
+    // }
+
   }
 }
-
-
-
